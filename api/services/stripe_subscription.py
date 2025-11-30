@@ -302,7 +302,7 @@ class StripeSubscriptionService:
             return {"error": "Plan not found"}
         
         # Update usage
-        sub.verifications_used = sub.verifications_used + 1
+        sub.verifications_used += 1
         sub.verifications_remaining = max(0, sub.verifications_remaining - 1)
         
         # Track by use case

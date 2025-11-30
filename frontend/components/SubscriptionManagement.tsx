@@ -82,15 +82,15 @@ export function SubscriptionManagement({
     
     setPortalLoading(true);
     try {
-      const response = await fetch(portalEndpoint, {
+      const params = new URLSearchParams({
+        customer_id: subscription.customer_id,
+        return_url: window.location.href
+      });
+      const response = await fetch(`${portalEndpoint}?${params.toString()}`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: new URLSearchParams({
-          customer_id: subscription.customer_id,
-          return_url: window.location.href
-        })
+          'Content-Type': 'application/json'
+        }
       });
 
       if (!response.ok) {
