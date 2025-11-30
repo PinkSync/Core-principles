@@ -1,0 +1,36 @@
+# PinkSync API - Docker Compose Configuration
+# DEAF FIRST Platform Services
+#
+# Usage:
+#   docker-compose up -d       # Start services
+#   docker-compose down        # Stop services
+#   docker-compose logs -f     # View logs
+
+version: '3.8'
+
+services:
+  pinksync-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pinksync-api
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/app
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./api:/app/api:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - pinksync-network
+
+networks:
+  pinksync-network:
+    driver: bridge
