@@ -4,3 +4,6 @@
 export { AITriggerPanel } from './AITriggerPanel';
 export { Dashboard } from './Dashboard';
 export { ServiceDiscovery } from './ServiceDiscovery';
+export { PricingPage } from './PricingPage';
+export { CheckoutFlow } from './CheckoutFlow';
+export { SubscriptionManagement } from './SubscriptionManagement';

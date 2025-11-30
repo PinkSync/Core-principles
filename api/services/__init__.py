@@ -2,6 +2,10 @@
 
 from typing import Dict, Any
 
+# Import biometric and subscription services
+from .biometric import ASLBiometricService, asl_biometric_service
+from .stripe_subscription import StripeSubscriptionService, stripe_service
+
 
 class PinkSyncServices:
     """
