@@ -6,9 +6,9 @@ Building what WE understand, not fitting into THEIR system.
 Middleware, FastAPI, API broker of all networks of accessibility partners and services.
 """
 
-from fastapi import FastAPI, HTTPException, Header, Request
+from fastapi import FastAPI, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
-from typing import Optional, List
+from typing import Optional
 import logging
 
 from .models.user import UserProfile, UserExperience
@@ -19,7 +19,7 @@ from .models.services import (
     DashboardConfig
 )
 from .services import PinkSyncServices, discover_services, SERVICE_DISCOVERY_MAP
-from .validators import validate_url, validate_batch
+from .validators import validate_url
 from .integrations.fibonrose import send_score
 
 # Configure logging
@@ -227,7 +227,7 @@ async def get_service_category(category: str):
 
 @app.post("/api/py/ai-validate", response_model=ValidationResponse, tags=["Validation"])
 async def ai_validate(
-    request: Request,
+    request: ValidationRequest,
     x_magician_role: Optional[str] = Header(None, alias="X-Magician-Role")
 ):
     """
@@ -242,18 +242,11 @@ async def ai_validate(
     if x_magician_role and x_magician_role != "accessibility-auditor":
         logger.warning(f"Unauthorized agent role: {x_magician_role}")
     
-    try:
-        payload = await request.json()
-    except Exception as e:
-        raise HTTPException(status_code=400, detail="Invalid JSON payload")
-    
-    urls = payload.get("urls", [])
-    
-    if not urls:
+    if not request.urls:
         raise HTTPException(status_code=400, detail="No URLs provided")
     
     results = []
-    for url in urls:
+    for url in request.urls:
         result = validate_url(url)
         score = result.get("deaf_score", 0)
         asl_compatible = result.get("asl_compatible", False)
