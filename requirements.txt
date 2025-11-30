@@ -15,5 +15,8 @@ aiofiles>=23.2.0
 # Security
 python-jose[cryptography]>=3.3.0
 
+# Payments
+stripe>=7.0.0
+
 # Logging
 structlog>=23.2.0

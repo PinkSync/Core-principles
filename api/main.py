@@ -6,9 +6,9 @@ Building what WE understand, not fitting into THEIR system.
 Middleware, FastAPI, API broker of all networks of accessibility partners and services.
 """
 
-from fastapi import FastAPI, HTTPException, Header
+from fastapi import FastAPI, HTTPException, Header, Request
 from fastapi.middleware.cors import CORSMiddleware
-from typing import Optional
+from typing import Optional, List
 import logging
 
 from .models.user import UserProfile, UserExperience
@@ -18,7 +18,28 @@ from .models.services import (
     ValidationResult,
     DashboardConfig
 )
-from .services import PinkSyncServices, discover_services, SERVICE_DISCOVERY_MAP
+from .models.biometric import (
+    VerificationRequest,
+    VerificationResult,
+    BiometricProfile,
+    UseCaseCategory
+)
+from .models.subscription import (
+    PricingPlan,
+    CreateCheckoutRequest,
+    CheckoutSessionResponse,
+    SubscriptionInfo,
+    UsageReport,
+    PortalSessionResponse,
+    PRICING_PLANS
+)
+from .services import (
+    PinkSyncServices,
+    discover_services,
+    SERVICE_DISCOVERY_MAP,
+    asl_biometric_service,
+    stripe_service
+)
 from .validators import validate_url
 from .integrations.fibonrose import send_score
 
@@ -45,6 +66,8 @@ app = FastAPI(
     - **Community Services**: Networking, resource sharing, advocacy
     - **Emergency Services**: Emergency communication, crisis support
     - **Business Services**: Business development, financial management
+    - **ASL Biometric Verification**: Identity verification using ASL signing patterns
+    - **Subscription Management**: Stripe-powered subscription plans
     
     ### Core Principles
     
@@ -320,6 +343,241 @@ async def root():
     }
 
 
+# ============================================================================
+# ASL Biometric Verification Endpoints
+# ============================================================================
+
+@app.post("/api/biometric/verify", response_model=VerificationResult, tags=["Biometric"])
+async def verify_identity(request: VerificationRequest):
+    """
+    Verify signer identity using ASL biometric patterns.
+    
+    Supports various use cases including:
+    - Healthcare (telehealth consent, pharmacy verification)
+    - Legal (court interpreter, contract signing)
+    - Business (remote work, contract verification)
+    - Education (exam proctoring, special education)
+    - Government (benefits verification)
+    - Social Services (protection orders, housing)
+    """
+    # Get or create biometric profile
+    profile = asl_biometric_service.get_biometric_profile(request.user_id)
+    if not profile:
+        profile = asl_biometric_service.register_biometric_profile(request.user_id)
+    
+    result = await asl_biometric_service.verify_signer_identity(
+        video_data=request.video_data or "",
+        stored_biometrics=profile,
+        use_case=request.use_case,
+        context=request.context
+    )
+    
+    return result
+
+
+@app.post("/api/biometric/register", response_model=BiometricProfile, tags=["Biometric"])
+async def register_biometric_profile(user_id: str, profile_type: str = "asl_signer"):
+    """
+    Register a new biometric profile for a user.
+    
+    This creates a stored profile that can be used for future verifications.
+    """
+    existing = asl_biometric_service.get_biometric_profile(user_id)
+    if existing:
+        raise HTTPException(
+            status_code=400,
+            detail="Biometric profile already exists for this user"
+        )
+    
+    profile = asl_biometric_service.register_biometric_profile(user_id, profile_type)
+    return profile
+
+
+@app.get("/api/biometric/profile/{user_id}", response_model=BiometricProfile, tags=["Biometric"])
+async def get_biometric_profile(user_id: str):
+    """
+    Get biometric profile for a user.
+    """
+    profile = asl_biometric_service.get_biometric_profile(user_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    return profile
+
+
+@app.get("/api/biometric/pricing", tags=["Biometric"])
+async def get_biometric_pricing():
+    """
+    Get pricing information for all biometric verification use cases.
+    """
+    return asl_biometric_service.get_use_case_pricing()
+
+
+@app.get("/api/biometric/use-cases", tags=["Biometric"])
+async def get_use_cases():
+    """
+    Get all available biometric verification use cases.
+    """
+    return {
+        "use_cases": [
+            {
+                "category": "healthcare",
+                "services": [
+                    {"name": "Telehealth Consent", "price": 0.50, "description": "Verify patient identity for medical consultations"},
+                    {"name": "Pharmacy Verification", "price": 2.00, "description": "Verify patient for prescription pickup"},
+                    {"name": "Medical Interpreter", "price": 3.00, "description": "Verify interpreter identity"}
+                ]
+            },
+            {
+                "category": "legal",
+                "services": [
+                    {"name": "Court Interpreter", "price": 15.00, "description": "Continuous verification per hour"},
+                    {"name": "Contract Signing", "price": 25.00, "description": "Verify all parties in contract"}
+                ]
+            },
+            {
+                "category": "business",
+                "services": [
+                    {"name": "Remote Work", "price": 0.25, "description": "Verify employee attendance"},
+                    {"name": "Contract Verification", "price": 25.00, "description": "Verify business contract parties"}
+                ]
+            },
+            {
+                "category": "education",
+                "services": [
+                    {"name": "Exam Proctoring", "price": 10.00, "description": "Verify student during exams"},
+                    {"name": "Special Education", "price": 15.00, "description": "Track therapy participation"}
+                ]
+            },
+            {
+                "category": "government",
+                "services": [
+                    {"name": "Benefits Verification", "price": 5.00, "description": "Verify recipient identity"},
+                    {"name": "Identity Verification", "price": 8.00, "description": "General government ID verification"}
+                ]
+            },
+            {
+                "category": "social_services",
+                "services": [
+                    {"name": "Protection Verification", "price": 0.00, "description": "Free safety verification"},
+                    {"name": "Housing Verification", "price": 8.00, "description": "Verify housing applicants"}
+                ]
+            }
+        ]
+    }
+
+
+# ============================================================================
+# Subscription Endpoints (Stripe Integration)
+# ============================================================================
+
+@app.get("/api/subscription/plans", response_model=List[PricingPlan], tags=["Subscription"])
+async def get_pricing_plans():
+    """
+    Get all available subscription plans.
+    
+    Returns Starter, Professional, and Enterprise plans with features and pricing.
+    """
+    return stripe_service.get_pricing_plans()
+
+
+@app.get("/api/subscription/plans/{plan_id}", response_model=PricingPlan, tags=["Subscription"])
+async def get_plan(plan_id: str):
+    """
+    Get details for a specific subscription plan.
+    """
+    plan = stripe_service.get_plan(plan_id)
+    if not plan:
+        raise HTTPException(status_code=404, detail="Plan not found")
+    return plan
+
+
+@app.post("/api/subscription/checkout", response_model=CheckoutSessionResponse, tags=["Subscription"])
+async def create_checkout_session(request: CreateCheckoutRequest):
+    """
+    Create a Stripe checkout session for subscription.
+    
+    Returns a checkout URL to redirect the customer to complete payment.
+    """
+    try:
+        session = await stripe_service.create_checkout_session(request)
+        return session
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Checkout error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to create checkout session")
+
+
+@app.post("/api/subscription/portal", response_model=PortalSessionResponse, tags=["Subscription"])
+async def create_portal_session(customer_id: str, return_url: str):
+    """
+    Create a Stripe customer portal session.
+    
+    Allows customers to manage their subscription, update payment methods, etc.
+    """
+    try:
+        session = await stripe_service.create_portal_session(customer_id, return_url)
+        return session
+    except Exception as e:
+        logger.error(f"Portal error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to create portal session")
+
+
+@app.post("/api/subscription/webhook", tags=["Subscription"])
+async def handle_stripe_webhook(request: Request):
+    """
+    Handle Stripe webhook events.
+    
+    Processes subscription lifecycle events like payments, cancellations, etc.
+    """
+    payload = await request.body()
+    signature = request.headers.get("stripe-signature", "")
+    
+    try:
+        result = await stripe_service.handle_webhook(payload, signature)
+        return result
+    except Exception as e:
+        logger.error(f"Webhook error: {str(e)}")
+        raise HTTPException(status_code=400, detail="Webhook processing failed")
+
+
+@app.get("/api/subscription/{subscription_id}", response_model=SubscriptionInfo, tags=["Subscription"])
+async def get_subscription(subscription_id: str):
+    """
+    Get subscription information.
+    """
+    sub = stripe_service.get_subscription(subscription_id)
+    if not sub:
+        raise HTTPException(status_code=404, detail="Subscription not found")
+    return sub
+
+
+@app.get("/api/subscription/{subscription_id}/usage", response_model=UsageReport, tags=["Subscription"])
+async def get_usage_report(subscription_id: str):
+    """
+    Get usage report for a subscription.
+    
+    Shows verifications used, remaining, and overage costs.
+    """
+    usage = stripe_service.get_usage_report(subscription_id)
+    if not usage:
+        raise HTTPException(status_code=404, detail="Usage report not found")
+    return usage
+
+
+@app.post("/api/subscription/{subscription_id}/record-usage", tags=["Subscription"])
+async def record_usage(subscription_id: str, use_case: str):
+    """
+    Record a verification usage for a subscription.
+    
+    Updates the usage count and calculates any overage.
+    """
+    result = stripe_service.record_verification_usage(subscription_id, use_case)
+    if "error" in result:
+        raise HTTPException(status_code=400, detail=result["error"])
+    return result
+
+
 # OpenAPI tags metadata
 tags_metadata = [
     {
@@ -337,6 +595,14 @@ tags_metadata = [
     {
         "name": "Validation",
         "description": "Validate URLs for deaf accessibility"
+    },
+    {
+        "name": "Biometric",
+        "description": "ASL biometric identity verification for healthcare, legal, business, education, and government use cases"
+    },
+    {
+        "name": "Subscription",
+        "description": "Stripe subscription management for ASL Biometric verification services"
     },
     {
         "name": "Feedback",
