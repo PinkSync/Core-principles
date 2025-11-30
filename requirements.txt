@@ -1,0 +1,19 @@
+# PinkSync API Dependencies
+# DEAF FIRST Platform Services
+
+# Core Framework
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.5.0
+
+# HTTP Client
+httpx>=0.25.0
+
+# Async Support
+aiofiles>=23.2.0
+
+# Security
+python-jose[cryptography]>=3.3.0
+
+# Logging
+structlog>=23.2.0
