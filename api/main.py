@@ -215,7 +215,7 @@ async def create_subscription(subscription: SubscriptionRequest):
     **Contract:** Defined in specs/event-broker.contract.md
     """
     # Check if subscription already exists
-    existing = [s for s in subscriptions_store if s["consumer_id"] == subscription.consumer_id]
+    existing = [s for s in subscriptions_store if s["subscription"]["consumer_id"] == subscription.consumer_id]
     if existing:
         raise HTTPException(
             status_code=409,
@@ -553,7 +553,295 @@ async def root():
         "version": "1.0.0",
         "description": "DEAF FIRST Platform Services API",
         "docs": "/docs",
-        "health": "/health"
+        "health": "/health",
+        "endpoints": "/api/endpoints"
+    }
+
+
+@app.get("/api/endpoints", tags=["Root"])
+async def list_all_endpoints():
+    """
+    List all available API endpoints.
+    
+    Showcases the PATH - all accessible endpoints organized by category.
+    This is your PROMISE of what PinkSync delivers.
+    """
+    return {
+        "broker_v1": {
+            "description": "Core accessibility event broker - Contract-first API",
+            "endpoints": [
+                {
+                    "path": "/v1/events",
+                    "method": "POST",
+                    "description": "Accept accessibility events from applications",
+                    "status": "available",
+                    "contract": "/specs/event-broker.contract.md"
+                },
+                {
+                    "path": "/v1/capabilities",
+                    "method": "GET",
+                    "description": "List registered application capabilities",
+                    "status": "available",
+                    "contract": "/specs/event-broker.contract.md"
+                },
+                {
+                    "path": "/v1/subscribe",
+                    "method": "POST",
+                    "description": "Subscribe to accessibility events",
+                    "status": "available",
+                    "contract": "/specs/event-broker.contract.md"
+                },
+                {
+                    "path": "/v1/compliance/{app_id}",
+                    "method": "GET",
+                    "description": "Check compliance status for an application",
+                    "status": "available",
+                    "contract": "/specs/event-broker.contract.md"
+                }
+            ]
+        },
+        "dashboard": {
+            "description": "Personalized DEAF FIRST dashboard services",
+            "endpoints": [
+                {
+                    "path": "/api/initialize-dashboard",
+                    "method": "POST",
+                    "description": "Initialize personalized dashboard",
+                    "status": "available"
+                }
+            ]
+        },
+        "discovery": {
+            "description": "Service discovery and search",
+            "endpoints": [
+                {
+                    "path": "/api/discover",
+                    "method": "GET",
+                    "description": "Discover services based on query",
+                    "status": "available"
+                },
+                {
+                    "path": "/api/services",
+                    "method": "GET",
+                    "description": "List all available services",
+                    "status": "available"
+                },
+                {
+                    "path": "/api/services/{category}",
+                    "method": "GET",
+                    "description": "Get services by category",
+                    "status": "available"
+                }
+            ]
+        },
+        "validation": {
+            "description": "Accessibility validation services",
+            "endpoints": [
+                {
+                    "path": "/api/py/ai-validate",
+                    "method": "POST",
+                    "description": "AI batch validation for deaf accessibility",
+                    "status": "available"
+                },
+                {
+                    "path": "/api/validate",
+                    "method": "POST",
+                    "description": "Validate single URL",
+                    "status": "available"
+                }
+            ]
+        },
+        "feedback": {
+            "description": "Service feedback collection",
+            "endpoints": [
+                {
+                    "path": "/api/feedback",
+                    "method": "POST",
+                    "description": "Collect service feedback",
+                    "status": "available"
+                }
+            ]
+        },
+        "ecosystem": {
+            "description": "PinkSync ecosystem integration",
+            "endpoints": [
+                {
+                    "path": "/api/ecosystem/features",
+                    "method": "GET",
+                    "description": "Discover available features from pinkycollie/pinksync repository",
+                    "status": "available"
+                },
+                {
+                    "path": "/api/ecosystem/source",
+                    "method": "GET",
+                    "description": "Get source repository information",
+                    "status": "available"
+                }
+            ]
+        },
+        "system": {
+            "description": "System health and information",
+            "endpoints": [
+                {
+                    "path": "/",
+                    "method": "GET",
+                    "description": "Root endpoint with API information",
+                    "status": "available"
+                },
+                {
+                    "path": "/health",
+                    "method": "GET",
+                    "description": "Health check endpoint",
+                    "status": "available"
+                },
+                {
+                    "path": "/api/endpoints",
+                    "method": "GET",
+                    "description": "List all available endpoints (this endpoint)",
+                    "status": "available"
+                },
+                {
+                    "path": "/docs",
+                    "method": "GET",
+                    "description": "Interactive API documentation",
+                    "status": "available"
+                },
+                {
+                    "path": "/redoc",
+                    "method": "GET",
+                    "description": "Alternative API documentation",
+                    "status": "available"
+                },
+                {
+                    "path": "/openapi.json",
+                    "method": "GET",
+                    "description": "OpenAPI schema",
+                    "status": "available"
+                }
+            ]
+        },
+        "promise": {
+            "message": "This is our PROMISE - every endpoint listed here is available and working",
+            "contract": "All broker endpoints follow the contract defined in /specs/event-broker.contract.md",
+            "compliance": "All endpoints support deaf-first accessibility principles",
+            "source": "Additional features and microservices available at github.com/pinkycollie/pinksync"
+        },
+        "roadmap": {
+            "planned": [
+                {
+                    "path": "/v1/events/stream",
+                    "method": "GET",
+                    "description": "Real-time event streaming via WebSocket",
+                    "status": "planned",
+                    "eta": "Q1 2026"
+                },
+                {
+                    "path": "/v1/analytics",
+                    "method": "GET",
+                    "description": "Accessibility analytics dashboard",
+                    "status": "planned",
+                    "eta": "Q2 2026"
+                }
+            ]
+        }
+    }
+
+
+@app.get("/api/ecosystem/source", tags=["Ecosystem"])
+async def get_source_repository():
+    """
+    Get source repository information.
+    
+    Returns details about the pinkycollie/pinksync repository where all features,
+    tools, and microservices are developed.
+    """
+    return {
+        "repository": "github.com/pinkycollie/pinksync",
+        "url": "https://github.com/pinkycollie/pinksync",
+        "description": "Source repository containing all PinkSync features, tools, and microservices",
+        "structure": {
+            "features": "Feature branches with specific accessibility capabilities",
+            "tools": "Specialized tools for accessibility testing and validation",
+            "microservices": "Independent microservices extending PinkSync functionality"
+        },
+        "integration": {
+            "contracts": "All features must follow contracts defined in /specs",
+            "broker": "All services emit events to PinkSync broker",
+            "compliance": "All components respect compliance levels"
+        },
+        "documentation": {
+            "ecosystem_guide": "/ECOSYSTEM.md",
+            "specifications": "/specs/README.md",
+            "core_principles": "/Core.md"
+        },
+        "deployment": {
+            "monorepo": "Deploy all features together",
+            "selective": "Deploy specific feature branches",
+            "microservices": "Deploy each service independently"
+        }
+    }
+
+
+@app.get("/api/ecosystem/features", tags=["Ecosystem"])
+async def discover_ecosystem_features():
+    """
+    Discover available features from the PinkSync ecosystem.
+    
+    Lists features, tools, and microservices available in the pinkycollie/pinksync
+    repository. These are organized by branches in the source repository.
+    """
+    return {
+        "source_repository": "github.com/pinkycollie/pinksync",
+        "features": {
+            "available": [
+                {
+                    "name": "Sign Language Interpreter",
+                    "branch": "feature/sign-language-interpreter",
+                    "description": "ASL video interpretation service",
+                    "status": "check repository for availability"
+                },
+                {
+                    "name": "Visual Alerts",
+                    "branch": "feature/visual-alerts",
+                    "description": "Convert audio alerts to visual notifications",
+                    "status": "check repository for availability"
+                },
+                {
+                    "name": "Caption Generator",
+                    "branch": "microservice/caption-generator",
+                    "description": "Real-time caption generation microservice",
+                    "status": "check repository for availability"
+                },
+                {
+                    "name": "ASL Video Processor",
+                    "branch": "microservice/asl-video-processor",
+                    "description": "Video processing optimized for sign language",
+                    "status": "check repository for availability"
+                }
+            ]
+        },
+        "tools": {
+            "available": [
+                {
+                    "name": "Accessibility Validator",
+                    "branch": "tool/accessibility-validator",
+                    "description": "Validate applications against PinkSync contracts",
+                    "status": "check repository for availability"
+                },
+                {
+                    "name": "Compliance Checker",
+                    "branch": "tool/compliance-checker",
+                    "description": "Check compliance level of applications",
+                    "status": "check repository for availability"
+                }
+            ]
+        },
+        "how_to_use": {
+            "discover": "Visit https://github.com/pinkycollie/pinksync to see all available branches",
+            "checkout": "git clone -b <branch-name> https://github.com/pinkycollie/pinksync",
+            "integrate": "Follow the README.md in each branch for integration instructions"
+        },
+        "note": "Feature availability and branches are maintained in the source repository. Check github.com/pinkycollie/pinksync for the most current list of available features, tools, and microservices."
     }
 
 
@@ -562,6 +850,10 @@ tags_metadata = [
     {
         "name": "Broker v1",
         "description": "PinkSync Accessibility Event Broker - Core API for accessibility intent brokering. Contract-first, type-safe, async-native. See specs/event-broker.contract.md for full contract."
+    },
+    {
+        "name": "Ecosystem",
+        "description": "Discover features, tools, and microservices from github.com/pinkycollie/pinksync source repository"
     },
     {
         "name": "Dashboard",
@@ -586,6 +878,10 @@ tags_metadata = [
     {
         "name": "Health",
         "description": "Health check endpoints"
+    },
+    {
+        "name": "Root",
+        "description": "Root endpoints and API information"
     }
 ]
 

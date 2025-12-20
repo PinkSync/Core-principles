@@ -1,0 +1,33 @@
+{
+  "state_id": "asl-video-call-hd",
+  "visual_requirements": {
+    "video_quality": "1080p",
+    "frame_rate": 60,
+    "lighting": {
+      "adjustable": true,
+      "background_contrast": "high",
+      "facial_visibility": true
+    },
+    "camera_angle": {
+      "multiple_angles": true,
+      "full_body": true,
+      "face_focus": true
+    }
+  },
+  "interaction_mode": "live_video",
+  "latency_requirements": {
+    "max_latency_ms": 100,
+    "jitter_tolerance_ms": 20
+  },
+  "accessibility_features": {
+    "background_blur": true,
+    "zoom_controls": true,
+    "recording_capability": true,
+    "slow_motion": false
+  },
+  "timestamp": "2025-12-20T18:00:00Z",
+  "metadata": {
+    "use_case": "professional_asl_interpretation",
+    "expected_duration_minutes": 30
+  }
+}
