@@ -1,6 +1,6 @@
 # PinkSync API - Accessibility API Broker
 
-> Building what WE understand, not fitting into THEIR system.
+> **Not a Deaf app. A Deaf-first protocol.**
 
 **PinkSync is an accessibility API broker with a hard contract.** We broker accessibility intents, capabilities, and compliance signals between apps, users, and agents—without owning the app itself.
 
@@ -53,7 +53,7 @@ uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
 - **ReDoc**: http://localhost:8000/redoc
 - **Health Check**: http://localhost:8000/health
 
-## 📚 API Endpoints
+## 📚 API Endpoints (v1)
 
 ### 🔥 PinkSync Broker API (v1)
 
@@ -73,28 +73,41 @@ The core accessibility event brokering API. **Contract-first, type-safe, async-n
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/initialize-dashboard` | POST | Initialize personalized DEAF FIRST dashboard |
+| `/v1/context/initialize` | POST | Initialize accessibility context (handshake) |
 
-### Service Discovery
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/discover` | GET | Discover services based on query |
-| `/api/services` | GET | List all available services |
-| `/api/services/{category}` | GET | Get services by category |
-
-### Validation
+### Capability Registry
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/py/ai-validate` | POST | AI batch validation for deaf accessibility |
-| `/api/validate` | POST | Validate single URL |
+| `/v1/capabilities` | GET | Query capability registry |
+| `/v1/providers` | GET | List accessibility providers |
 
-### Feedback
+### Validation & Compliance
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/feedback` | POST | Collect service feedback |
+| `/v1/validate` | POST | Validate target for compliance |
+| `/v1/validate/batch` | POST | Batch validate multiple targets |
+
+### Accessibility Events
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/v1/events` | POST | Submit accessibility event |
+| `/v1/events/batch` | POST | Submit event batch |
+| `/v1/events/types` | GET | List supported event types |
+
+### Signal Correction
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/v1/feedback/discrepancy` | POST | Report discrepancy |
+| `/v1/feedback/false-positive` | POST | Report false positive |
+| `/v1/feedback/mismatch` | POST | Report user mismatch |
+
+### Legacy Endpoints
+
+Legacy endpoints under `/api/` are maintained for backward compatibility but are deprecated. Use `/v1/` endpoints for new integrations.
 
 ## 🛠️ Service Categories
 
@@ -214,42 +227,123 @@ print(f"Subscription ID: {result['subscription_id']}")
 ```python
 import httpx
 
-user_profile = {
-    "name": "Maria",
-    "needs_financial_help": True,
-    "is_business_owner": True,
-    "needs_healthcare_help": True,
-    "location": "Fort Worth, TX",
-    "financial_goals": ["Buy house", "Start business"],
-    "preferred_communication": "text-heavy"
+context_request = {
+    "user_preferences": {
+        "requires_sign_language": True,
+        "requires_captions": True,
+        "visual_only_mode": True,
+        "high_contrast": True,
+        "text_size_preference": "large"
+    },
+    "app_capabilities": {
+        "app_name": "MyApp",
+        "app_version": "1.0.0",
+        "supports_sign_language": True,
+        "supports_captions": True,
+        "supports_visual_only": True,
+        "supports_high_contrast": True,
+        "text_scaling_available": True,
+        "spec_version": "1.0.0"
+    },
+    "context_type": "standard"
 }
 
 response = httpx.post(
-    "http://localhost:8000/api/initialize-dashboard",
-    json=user_profile
+    "http://localhost:8000/v1/context/initialize",
+    json=context_request
 )
-dashboard = response.json()
+context = response.json()
+print(f"Context ID: {context['context_id']}")
+print(f"Compatibility Score: {context['compatibility_score']}")
 ```
 
-### Discover Services
+### Query Capabilities
 
 ```python
 import httpx
 
 response = httpx.get(
-    "http://localhost:8000/api/discover",
-    params={"query": "tax help"}
+    "http://localhost:8000/v1/capabilities",
+    params={"capability_type": "visual"}
 )
-services = response.json()
+capabilities = response.json()
 ```
 
-### AI Batch Validation
+### Validate Target for Compliance
+
+```python
+import httpx
+
+response = httpx.post(
+    "http://localhost:8000/v1/validate",
+    params={
+        "target_url": "https://example.com",
+        "spec_version": "1.0.0"
+    }
+)
+report = response.json()
+print(f"Overall Score: {report['overall_score']}")
+print(f"Compliance Results: {report['results']}")
+```
+
+### Submit Accessibility Event
+
+```python
+import httpx
+from datetime import datetime
+
+event = {
+    "event_id": "evt_abc123",
+    "event_type": "user.requires_sign_language",
+    "timestamp": datetime.utcnow().isoformat() + "Z",
+    "source": "user_456",
+    "context_id": "ctx_abc123",
+    "data": {
+        "preference_enabled": True,
+        "language": "ASL"
+    },
+    "metadata": {
+        "app_version": "1.0.0",
+        "platform": "web"
+    }
+}
+
+response = httpx.post(
+    "http://localhost:8000/v1/events",
+    json=event
+)
+result = response.json()
+print(f"Event accepted: {result['status']}")
+```
+
+### Report Discrepancy
+
+```python
+import httpx
+
+discrepancy = {
+    "report_id": "disc_abc123",
+    "report_type": "discrepancy",
+    "target": "https://example.app",
+    "expected_behavior": "Captions should appear for all video content",
+    "actual_behavior": "Captions missing for embedded videos",
+    "severity": "high",
+    "timestamp": datetime.utcnow().isoformat() + "Z",
+    "evidence": ["screenshot_url_1"]
+}
+
+response = httpx.post(
+    "http://localhost:8000/v1/feedback/discrepancy",
+    json=discrepancy
+)
+```
+
+### Legacy Example (Deprecated)
 
 ```bash
-curl -X POST http://localhost:8000/api/py/ai-validate \
-  -H "Content-Type: application/json" \
-  -H "X-Magician-Role: accessibility-auditor" \
-  -d '{"urls": ["https://example.com", "https://deaf-friendly-site.com"]}'
+# Use /v1/validate instead
+curl -X POST http://localhost:8000/v1/validate \
+  -d "target_url=https://example.com&spec_version=1.0.0"
 ```
 
 ## 🎨 Frontend Components
@@ -290,6 +384,18 @@ import { ServiceDiscovery } from './components/ServiceDiscovery';
 ## 🏗️ Architecture
 
 ```
+PinkSync API - Accessibility Signal Exchange
+├── api/
+│   ├── main.py              # FastAPI application with v1 endpoints
+│   ├── schemas/             # Pydantic schemas (new)
+│   │   ├── accessibility.py # Context and preferences
+│   │   ├── capabilities.py  # Capability registry
+│   │   ├── compliance.py    # Validation reports
+│   │   ├── events.py        # Event stream schemas
+│   │   └── feedback.py      # Signal correction
+│   ├── models/              # Legacy models
+│   │   ├── user.py          # User profile models
+│   │   └── services.py      # Service models
 PinkSync API
 ├── specs/                          # Source of truth - Contract specifications
 │   ├── README.md                   # Specifications overview
@@ -319,6 +425,29 @@ PinkSync API
 └── requirements.txt
 ```
 
+## 🔗 PinkSync as Infrastructure
+
+PinkSync operates as an **accessibility signal exchange**:
+
+1. **Not a platform** - It's a protocol layer
+2. **Not a service** - It's infrastructure that services integrate with
+3. **Not optional** - When compliance matters, PinkSync becomes unavoidable
+
+### Key Principle
+
+The moment PinkSync can say:
+
+> "This app declared X, emitted Y, failed Z"
+
+...it stops being optional. This is how PinkSync turns from impressive into inevitable.
+
+## 📊 Versioning Strategy
+
+- **v1 endpoints** (`/v1/*`) - Current, actively maintained
+- **Legacy endpoints** (`/api/*`) - Deprecated but maintained for compatibility
+- **Spec version** - All validation tied to specific spec versions (e.g., "1.0.0")
+
+New integrations should use `/v1/` endpoints exclusively.
 ## 📋 Specifications
 
 PinkSync is **contract-first**. All specifications live in `/specs/`:
@@ -332,11 +461,11 @@ PinkSync is **contract-first**. All specifications live in `/specs/`:
 
 ## 🔗 Integration with 360 Magicians
 
-PinkSync API integrates seamlessly with 360 Business Magician as middleware:
+PinkSync API serves as infrastructure for accessibility-first applications:
 
-1. **Browser Integration**: Embed components in web applications
+1. **Browser Integration**: Embed validation and event tracking in web applications
 2. **Docker Deployment**: Run as containerized microservice
-3. **API Broker**: Connect multiple accessibility services
+3. **API Broker**: Connect multiple accessibility services through standard protocol
 4. **DeafAUTH Integration**: Secure authentication for deaf users
 
 ## 🎓 Core Philosophy
@@ -374,6 +503,7 @@ Every interaction is defined by a contract:
 
 See [Core.md](Core.md) for core principles and contribution guidelines.
 
+PinkSync is building a **Deaf-first protocol**, not a Deaf app. Contributions should align with this infrastructure-first approach.
 For specification changes, see [/specs/README.md](/specs/README.md).
 
 ## 📜 License
@@ -382,4 +512,6 @@ Built with ❤️ for the deaf community.
 
 ---
 
-*DEAF FIRST • Built for accessibility, not retrofitted* 🤟
+*PinkSync: Not a Deaf app. A Deaf-first protocol.* 🤟
+
+*ACCESSIBILITY SIGNAL EXCHANGE • Infrastructure, not features*
