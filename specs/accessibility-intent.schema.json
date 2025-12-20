@@ -1,0 +1,137 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://pinksync.org/schemas/accessibility-intent.schema.json",
+  "title": "Accessibility Intent Schema",
+  "description": "Defines accessibility intents, capabilities, and compliance signals for deaf-first interactions. This is the constitutional source of truth for PinkSync contracts.",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["app_id", "intent", "timestamp"],
+  "properties": {
+    "app_id": {
+      "type": "string",
+      "description": "Unique identifier for the application emitting the event",
+      "pattern": "^[a-zA-Z0-9_-]+$",
+      "minLength": 3,
+      "maxLength": 64,
+      "examples": ["my-app-123", "health-portal"]
+    },
+    "user_id": {
+      "type": ["string", "null"],
+      "description": "Optional user identifier. NULL for anonymous events.",
+      "pattern": "^[a-zA-Z0-9_-]+$",
+      "maxLength": 128
+    },
+    "intent": {
+      "type": "string",
+      "description": "The accessibility intent being declared. MUST be one of the defined intent types.",
+      "enum": [
+        "visual_only",
+        "sign_language",
+        "reduced_motion",
+        "high_contrast",
+        "captions_mandatory",
+        "no_audio_cues",
+        "visual_alerts",
+        "text_primary"
+      ]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when the event was generated"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional context for the accessibility event",
+      "properties": {
+        "severity": {
+          "type": "string",
+          "enum": ["required", "preferred", "optional"],
+          "description": "How critical this accessibility need is"
+        },
+        "context": {
+          "type": "string",
+          "description": "Application context where this intent applies",
+          "maxLength": 256
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of specific capabilities required"
+        },
+        "fallback": {
+          "type": "string",
+          "description": "Fallback behavior if intent cannot be satisfied"
+        }
+      },
+      "additionalProperties": true
+    },
+    "compliance_level": {
+      "type": "string",
+      "enum": ["bronze", "silver", "gold", "platinum"],
+      "description": "The compliance level this event relates to"
+    }
+  },
+  "definitions": {
+    "intent_types": {
+      "visual_only": {
+        "description": "Application MUST function without any audio output or input",
+        "requirement": "MUST"
+      },
+      "sign_language": {
+        "description": "Application SHOULD support ASL or other sign language interfaces",
+        "requirement": "SHOULD"
+      },
+      "reduced_motion": {
+        "description": "Application SHOULD minimize or eliminate animations and motion effects",
+        "requirement": "SHOULD"
+      },
+      "high_contrast": {
+        "description": "Application SHOULD support high contrast visual themes",
+        "requirement": "SHOULD"
+      },
+      "captions_mandatory": {
+        "description": "All video and audio content MUST have captions",
+        "requirement": "MUST"
+      },
+      "no_audio_cues": {
+        "description": "Application MUST NOT rely on audio cues for critical information",
+        "requirement": "MUST"
+      },
+      "visual_alerts": {
+        "description": "Application MUST provide visual alternatives for audio alerts",
+        "requirement": "MUST"
+      },
+      "text_primary": {
+        "description": "Text-based interface is the primary mode of interaction",
+        "requirement": "SHOULD"
+      }
+    }
+  },
+  "examples": [
+    {
+      "app_id": "health-portal-v2",
+      "user_id": "user-12345",
+      "intent": "visual_only",
+      "timestamp": "2025-12-20T18:00:00Z",
+      "metadata": {
+        "severity": "required",
+        "context": "emergency_alert",
+        "capabilities": ["flash_screen", "vibrate", "large_text"]
+      },
+      "compliance_level": "gold"
+    },
+    {
+      "app_id": "video-platform",
+      "user_id": null,
+      "intent": "captions_mandatory",
+      "timestamp": "2025-12-20T18:00:00Z",
+      "metadata": {
+        "severity": "required",
+        "context": "video_playback"
+      }
+    }
+  ]
+}

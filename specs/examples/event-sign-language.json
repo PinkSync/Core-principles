@@ -1,0 +1,15 @@
+{
+  "app_id": "social-media-app",
+  "user_id": "user-67890",
+  "intent": "sign_language",
+  "timestamp": "2025-12-20T18:00:00Z",
+  "metadata": {
+    "severity": "preferred",
+    "context": "customer_support_interaction",
+    "capabilities": [
+      "asl_video_support",
+      "sign_language_interpreter"
+    ]
+  },
+  "compliance_level": "gold"
+}

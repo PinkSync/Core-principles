@@ -1,0 +1,29 @@
+{
+  "state_id": "recorded-asl-tutorial",
+  "visual_requirements": {
+    "video_quality": "720p",
+    "frame_rate": 30,
+    "lighting": {
+      "adjustable": false,
+      "background_contrast": "medium",
+      "facial_visibility": true
+    },
+    "camera_angle": {
+      "multiple_angles": false,
+      "full_body": true,
+      "face_focus": false
+    }
+  },
+  "interaction_mode": "recorded_video",
+  "accessibility_features": {
+    "background_blur": false,
+    "zoom_controls": true,
+    "recording_capability": false,
+    "slow_motion": true
+  },
+  "timestamp": "2025-12-20T18:00:00Z",
+  "metadata": {
+    "use_case": "educational_content",
+    "skill_level": "beginner"
+  }
+}

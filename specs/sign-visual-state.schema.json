@@ -1,0 +1,151 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://pinksync.org/schemas/sign-visual-state.schema.json",
+  "title": "Sign Language Visual State Schema",
+  "description": "Defines the visual state requirements for sign language interfaces and video communication",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["state_id", "visual_requirements", "timestamp"],
+  "properties": {
+    "state_id": {
+      "type": "string",
+      "description": "Unique identifier for this visual state",
+      "pattern": "^[a-zA-Z0-9_-]+$"
+    },
+    "visual_requirements": {
+      "type": "object",
+      "required": ["video_quality", "frame_rate", "lighting"],
+      "properties": {
+        "video_quality": {
+          "type": "string",
+          "enum": ["720p", "1080p", "4k"],
+          "description": "Minimum video quality for sign language clarity"
+        },
+        "frame_rate": {
+          "type": "integer",
+          "minimum": 24,
+          "maximum": 120,
+          "description": "Frames per second - MUST be at least 30 for sign language"
+        },
+        "lighting": {
+          "type": "object",
+          "properties": {
+            "adjustable": {
+              "type": "boolean",
+              "description": "Whether lighting can be adjusted"
+            },
+            "background_contrast": {
+              "type": "string",
+              "enum": ["low", "medium", "high"],
+              "description": "Required background contrast level"
+            },
+            "facial_visibility": {
+              "type": "boolean",
+              "description": "Whether facial expressions MUST be clearly visible"
+            }
+          }
+        },
+        "camera_angle": {
+          "type": "object",
+          "properties": {
+            "multiple_angles": {
+              "type": "boolean",
+              "description": "Support for multiple camera angles"
+            },
+            "full_body": {
+              "type": "boolean",
+              "description": "Whether full body signing space is captured"
+            },
+            "face_focus": {
+              "type": "boolean",
+              "description": "Whether facial expressions are emphasized"
+            }
+          }
+        }
+      }
+    },
+    "interaction_mode": {
+      "type": "string",
+      "enum": ["live_video", "recorded_video", "avatar_signing", "text_gloss"],
+      "description": "The mode of sign language interaction"
+    },
+    "latency_requirements": {
+      "type": "object",
+      "properties": {
+        "max_latency_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 500,
+          "description": "Maximum acceptable latency in milliseconds - SHOULD be under 150ms for live conversation"
+        },
+        "jitter_tolerance_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Maximum jitter tolerance"
+        }
+      }
+    },
+    "accessibility_features": {
+      "type": "object",
+      "properties": {
+        "background_blur": {
+          "type": "boolean",
+          "description": "Background blur capability to improve focus"
+        },
+        "zoom_controls": {
+          "type": "boolean",
+          "description": "Ability to zoom in on signing"
+        },
+        "recording_capability": {
+          "type": "boolean",
+          "description": "Ability to record and replay"
+        },
+        "slow_motion": {
+          "type": "boolean",
+          "description": "Ability to play back in slow motion"
+        }
+      }
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when this state was defined"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional metadata about the visual state"
+    }
+  },
+  "examples": [
+    {
+      "state_id": "asl-video-call-hd",
+      "visual_requirements": {
+        "video_quality": "1080p",
+        "frame_rate": 60,
+        "lighting": {
+          "adjustable": true,
+          "background_contrast": "high",
+          "facial_visibility": true
+        },
+        "camera_angle": {
+          "multiple_angles": true,
+          "full_body": true,
+          "face_focus": true
+        }
+      },
+      "interaction_mode": "live_video",
+      "latency_requirements": {
+        "max_latency_ms": 100,
+        "jitter_tolerance_ms": 20
+      },
+      "accessibility_features": {
+        "background_blur": true,
+        "zoom_controls": true,
+        "recording_capability": true,
+        "slow_motion": false
+      },
+      "timestamp": "2025-12-20T18:00:00Z"
+    }
+  ]
+}

@@ -1,55 +1,26 @@
-# PinkSync API - Accessibility Signal Exchange
+# PinkSync API - Accessibility API Broker
 
 > **Not a Deaf app. A Deaf-first protocol.**
 
-PinkSync is an accessibility signal exchange infrastructure for deaf accessibility services. It serves as a broker that owns accessibility declarations, capability discovery, validation signals, and compliance artifacts. Everything else is downstream.
+**PinkSync is an accessibility API broker with a hard contract.** We broker accessibility intents, capabilities, and compliance signals between apps, users, and agents—without owning the app itself.
 
-## 🎯 Core Authority
+Think: **Stripe, but for accessibility signals. Twilio, but for Deaf-first interaction states.**
 
-PinkSync does NOT own:
-- Services
-- Dashboards  
-- UX decisions
+## 🎯 What PinkSync Does
 
-PinkSync owns:
-- **Accessibility declarations** - Apps and users declare capabilities and preferences
-- **Capability discovery** - Find providers that support specific accessibility features
-- **Validation signals** - Machine-readable compliance results against versioned specs
-- **Compliance artifacts** - Signed validation reports that can block deployments, unlock badges, or satisfy regulators
-- **Accessibility events** - Real-time event stream for monitoring and auditing
+### Core Broker (v1) ✅
+- Accepts accessibility events from applications
+- Normalizes them into PinkSync contracts
+- Routes them to subscribed consumers (UIs, agents, logs, validators)
+- Enforces contract shape via type-safe validation
+- Emits machine-verifiable signals
+- Produces structured logs for compliance auditing
 
-When PinkSync can say: **"This app declared X, emitted Y, failed Z"** — it stops being optional.
-
-## 🏗️ Infrastructure Components
-
-### 1. Accessibility Context Initialization
-Initialize accessibility contexts for consumer apps or agents through a handshake between app capabilities and user preferences. The broker returns constraints and defaults.
-
-**Think: context handshake, not UI.**
-
-### 2. Capability Registry
-Discover what accessibility capabilities exist, which providers claim support, and what version of the spec they comply with.
-
-Eventually: **service === accessibility-capable provider**
-
-### 3. Validation Engine  
-Machine-readable compliance checking. Results can block deployments, unlock App Store badges, or satisfy regulators.
-
-**This is infrastructure gravity.**
-
-### 4. Event Stream (The Heart of PinkSync)
-Append-only, structured, auditable accessibility events like:
-- `user.requires_sign_language`
-- `user.enabled_visual_only_mode`
-- `app.entered_audio_state`
-- `motion_reduced_due_to_preference`
-
-Without events, PinkSync is static. With events, PinkSync becomes real-time infrastructure.
-
-### 5. Signal Correction
-Feedback is NOT vibes. It's discrepancy reports, false positives, and user-declared mismatches.
-
-**Signal correction, not opinions.**
+### What PinkSync Does NOT Do ❌
+- Does NOT render UI
+- Does NOT generate video or visual content
+- Does NOT decide morality or make subjective judgments
+- Does NOT own or control the source applications
 
 ## 🚀 Quick Start
 
@@ -84,9 +55,21 @@ uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
 
 ## 📚 API Endpoints (v1)
 
-All new endpoints are versioned under `/v1/`. Legacy endpoints remain under `/api/` for backward compatibility.
+### 🔥 PinkSync Broker API (v1)
 
-### Accessibility Context
+The core accessibility event brokering API. **Contract-first, type-safe, async-native.**
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/v1/events` | POST | Accept accessibility events from applications |
+| `/v1/capabilities` | GET | List registered application capabilities |
+| `/v1/subscribe` | POST | Subscribe to accessibility events |
+| `/v1/compliance/{app_id}` | GET | Check compliance status for an application |
+
+**Contract Reference:** See [`/specs/event-broker.contract.md`](/specs/event-broker.contract.md)  
+**Schema Reference:** See [`/specs/accessibility-intent.schema.json`](/specs/accessibility-intent.schema.json)
+
+### Dashboard
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
@@ -170,7 +153,76 @@ Legacy endpoints under `/api/` are maintained for backward compatibility but are
 
 ## 🔌 Integration Examples
 
-### Initialize Accessibility Context
+### Broker API - Submit Accessibility Event
+
+```python
+import httpx
+from datetime import datetime
+
+event = {
+    "app_id": "my-app-v2",
+    "user_id": "user-12345",
+    "intent": "visual_only",
+    "timestamp": datetime.utcnow().isoformat() + "Z",
+    "metadata": {
+        "severity": "required",
+        "context": "emergency_alert",
+        "capabilities": ["flash_screen", "vibrate", "large_text"]
+    },
+    "compliance_level": "gold"
+}
+
+response = httpx.post(
+    "http://localhost:8000/v1/events",
+    json=event
+)
+
+# Response includes event_id, signature, and status
+result = response.json()
+print(f"Event accepted: {result['event_id']}")
+print(f"Signature: {result['signature']}")
+```
+
+### Broker API - Check Compliance
+
+```python
+import httpx
+
+response = httpx.get(
+    "http://localhost:8000/v1/compliance/my-app-v2"
+)
+
+compliance = response.json()
+print(f"Level: {compliance['compliance_level']}")
+print(f"Status: {compliance['status']}")
+print(f"Events: {compliance['events_count']}")
+print(f"Certificate: {compliance['certificate_url']}")
+```
+
+### Broker API - Subscribe to Events
+
+```python
+import httpx
+
+subscription = {
+    "consumer_id": "accessibility-monitor-1",
+    "event_types": ["visual_only", "captions_mandatory"],
+    "webhook_url": "https://monitor.example.com/webhook",
+    "filter": {
+        "compliance_levels": ["gold", "platinum"]
+    }
+}
+
+response = httpx.post(
+    "http://localhost:8000/v1/subscribe",
+    json=subscription
+)
+
+result = response.json()
+print(f"Subscription ID: {result['subscription_id']}")
+```
+
+### Initialize Dashboard
 
 ```python
 import httpx
@@ -344,12 +396,25 @@ PinkSync API - Accessibility Signal Exchange
 │   ├── models/              # Legacy models
 │   │   ├── user.py          # User profile models
 │   │   └── services.py      # Service models
+PinkSync API
+├── specs/                          # Source of truth - Contract specifications
+│   ├── README.md                   # Specifications overview
+│   ├── accessibility-intent.schema.json
+│   ├── sign-visual-state.schema.json
+│   ├── event-broker.contract.md
+│   └── compliance-levels.md
+├── api/
+│   ├── main.py                     # FastAPI application with Broker v1
+│   ├── models/
+│   │   ├── broker.py               # Broker event models
+│   │   ├── user.py                 # User profile models
+│   │   └── services.py             # Service models
 │   ├── services/
-│   │   └── __init__.py      # Service definitions
+│   │   └── __init__.py             # Service definitions
 │   ├── validators/
-│   │   └── __init__.py      # Accessibility validators
+│   │   └── __init__.py             # Accessibility validators
 │   └── integrations/
-│       └── fibonrose.py     # External integrations
+│       └── fibonrose.py            # External integrations
 ├── frontend/
 │   └── components/
 │       ├── AITriggerPanel.tsx
@@ -383,6 +448,16 @@ The moment PinkSync can say:
 - **Spec version** - All validation tied to specific spec versions (e.g., "1.0.0")
 
 New integrations should use `/v1/` endpoints exclusively.
+## 📋 Specifications
+
+PinkSync is **contract-first**. All specifications live in `/specs/`:
+
+- **accessibility-intent.schema.json** - JSON Schema for accessibility events
+- **sign-visual-state.schema.json** - JSON Schema for sign language visual requirements
+- **event-broker.contract.md** - API contract (RFC-style, legally binding)
+- **compliance-levels.md** - Bronze/Silver/Gold/Platinum compliance definitions
+
+**See [/specs/README.md](/specs/README.md) for full specifications documentation.**
 
 ## 🔗 Integration with 360 Magicians
 
@@ -393,11 +468,43 @@ PinkSync API serves as infrastructure for accessibility-first applications:
 3. **API Broker**: Connect multiple accessibility services through standard protocol
 4. **DeafAUTH Integration**: Secure authentication for deaf users
 
+## 🎓 Core Philosophy
+
+### Accessibility as Infrastructure
+
+PinkSync treats accessibility not as a feature, but as **infrastructure**. Like Stripe handles payments or Twilio handles communications, PinkSync handles accessibility signals.
+
+### Contract-First Architecture
+
+Every interaction is defined by a contract:
+- **Type-safe** - Enforced by Pydantic models
+- **Machine-verifiable** - JSON schemas for validation
+- **Legally binding** - Written in RFC 2119 language
+- **Auditable** - Every event is signed and logged
+
+### What This Enables
+
+- ✅ **CI Enforcement** - Accessibility tests in your build pipeline
+- ✅ **Partner Audits** - Machine-readable compliance reports
+- ✅ **App Store Eligibility** - Verifiable accessibility certification
+- ✅ **Regulatory Proof** - Immutable audit trail for compliance
+
+### The Difference
+
+| Traditional Approach | PinkSync Approach |
+|---------------------|-------------------|
+| Accessibility added as afterthought | Contract-first architecture |
+| Subjective compliance | Machine-verifiable signals |
+| Checkbox exercise | Measurable, enforceable standards |
+| No audit trail | Cryptographically signed logs |
+| Built for hearing, adapted | Built for deaf, by design |
+
 ## 🤝 Contributing
 
 See [Core.md](Core.md) for core principles and contribution guidelines.
 
 PinkSync is building a **Deaf-first protocol**, not a Deaf app. Contributions should align with this infrastructure-first approach.
+For specification changes, see [/specs/README.md](/specs/README.md).
 
 ## 📜 License
 
