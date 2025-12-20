@@ -1,0 +1,12 @@
+{
+  "app_id": "video-streaming-platform",
+  "user_id": null,
+  "intent": "captions_mandatory",
+  "timestamp": "2025-12-20T18:00:00Z",
+  "metadata": {
+    "severity": "required",
+    "context": "video_playback",
+    "fallback": "pause_playback_if_captions_unavailable"
+  },
+  "compliance_level": "silver"
+}

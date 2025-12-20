@@ -1,0 +1,16 @@
+{
+  "app_id": "health-portal-v2",
+  "user_id": "user-12345",
+  "intent": "visual_only",
+  "timestamp": "2025-12-20T18:00:00Z",
+  "metadata": {
+    "severity": "required",
+    "context": "emergency_alert",
+    "capabilities": [
+      "flash_screen",
+      "vibrate",
+      "large_text"
+    ]
+  },
+  "compliance_level": "gold"
+}
