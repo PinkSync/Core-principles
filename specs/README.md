@@ -245,16 +245,16 @@ curl http://localhost:8000/v1/capabilities
 ### Questions?
 
 - **Technical Issues:** GitHub Issues
-- **Contract Clarifications:** contracts@pinksync.org
+- **Contract Clarifications:** contracts@pinksync.io
 - **RFC Proposals:** Submit via GitHub PR
-- **Community Discussion:** https://community.pinksync.org
+- **Community Discussion:** https://community.pinksync.io
 
 ### Resources
 
-- Main Documentation: https://docs.pinksync.org
+- Main Documentation: https://docs.pinksync.io
 - API Reference: https://api.pinksync.org/docs
-- Community Forum: https://community.pinksync.org
-- Status Page: https://status.pinksync.org
+- Community Forum: https://community.pinksync.io
+- Status Page: https://status.pinksync.io
 
 ## Enforcement
 
