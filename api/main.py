@@ -16,6 +16,16 @@ import uuid
 import uuid
 import hashlib
 from datetime import datetime
+DEAF FIRST Platform Services API
+
+Building what WE understand, not fitting into THEIR system.
+Middleware, FastAPI, API broker of all networks of accessibility partners and services.
+"""
+
+from fastapi import FastAPI, HTTPException, Header, Request
+from fastapi.middleware.cors import CORSMiddleware
+from typing import Optional, List
+import logging
 
 from .models.user import UserProfile, UserExperience
 from .models.services import (
@@ -55,6 +65,8 @@ from .models.broker import (
 )
 from .services import PinkSyncServices, discover_services, SERVICE_DISCOVERY_MAP
 from .validators import validate_url
+from .services import PinkSyncServices, discover_services, SERVICE_DISCOVERY_MAP
+from .validators import validate_url, validate_batch
 from .integrations.fibonrose import send_score
 
 # Configure logging
@@ -117,12 +129,34 @@ app = FastAPI(
     - **Validation Engine** - Machine-readable compliance checking
     - **Event Stream** - Append-only, structured, auditable accessibility events
     - **Signal Correction** - Discrepancy reporting and validation refinement
+===
+    title="PinkSync API",
+    description="""
+    ## DEAF FIRST Platform Services API
+    
+    Building what WE understand, not fitting into THEIR system.
+    
+    This API provides comprehensive services for the deaf and hard-of-hearing community,
+    including:
+    
+    - **Communication Services**: Visual chat, ASL video calls, text relay
+    - **Financial Services**: Tax help, insurance navigation, real estate support
+    - **Accessibility Services**: Captioning, visual alerts, environmental awareness
+    - **Education Services**: ASL learning, financial literacy, tech training
+    - **Professional Services**: Legal support, healthcare navigation, employment help
+    - **Community Services**: Networking, resource sharing, advocacy
+    - **Emergency Services**: Emergency communication, crisis support
+    - **Business Services**: Business development, financial management
+    
+    ### Core Principles
+    
+>>>>>>> 9cdb22b... Add PinkSync API - DEAF FIRST Platform Services with FastAPI, frontend components, Docker, and documentation
     - **Text-based primary**: Text is the primary interface
     - **Visual indicators**: Visual feedback for everything
     - **No audio requirements**: Never requires hearing
     - **Cultural competency**: Understands deaf culture
     - **Accessibility first**: Built for accessibility, not retrofitted
-    
+<<<<    
     ### What PinkSync Does ✅
     
     - Brokers accessibility intent signals
@@ -136,6 +170,8 @@ app = FastAPI(
     - Does NOT generate video or content
     - Does NOT decide morality
     - Does NOT own the source applications
+>>>>>>>+HEAD
+>>>>>>> 9cdb22b... Add PinkSync API - DEAF FIRST Platform Services with FastAPI, frontend components, Docker, and documentation
     """,
     version="1.0.0",
     docs_url="/docs",
@@ -154,7 +190,7 @@ app.add_middleware(
 # Initialize services
 pinksync_services = PinkSyncServices()
 
-# In-memory storage for broker (would be replaced with database in production)
+<<<<<<< # In-memory storage for broker (would be replaced with database in production)
 events_store = []
 capabilities_store = []
 subscriptions_store = []
@@ -464,6 +500,16 @@ async def initialize_dashboard(user: UserProfile):
     """
     **LEGACY ENDPOINT** - Use `/v1/context/initialize` instead.
     
+>>>>>>>+HEAD
+
+# ============================================================================
+# Dashboard Endpoints
+# ============================================================================
+
+@app.post("/api/initialize-dashboard", response_model=DashboardConfig, tags=["Dashboard"])
+async def initialize_dashboard(user: UserProfile):
+    """
+>>>>>>> 9cdb22b... Add PinkSync API - DEAF FIRST Platform Services with FastAPI, frontend components, Docker, and documentation
     Initialize a personalized DEAF FIRST dashboard for a user.
     
     Creates a customized dashboard based on user profile and needs,
@@ -543,7 +589,7 @@ async def initialize_dashboard(user: UserProfile):
     )
 
 
-
+<<<<<<< 
 # ============================================================================
 # Capability Registry Endpoints (v1)
 # Reframed: Service Discovery -> Capability Registry
@@ -698,6 +744,15 @@ async def discover_services_endpoint(query: str):
     """
     **LEGACY ENDPOINT** - Use `/v1/capabilities` instead.
     
+>>>>>>>+HEAD
+# ============================================================================
+# Service Discovery Endpoints
+# ============================================================================
+
+@app.get("/api/discover", tags=["Discovery"])
+async def discover_services_endpoint(query: str):
+    """
+>>>>>>> 9cdb22b... Add PinkSync API - DEAF FIRST Platform Services with FastAPI, frontend components, Docker, and documentation
     Discover services based on user query.
     
     Searches the service catalog for matches and provides
@@ -715,11 +770,16 @@ async def discover_services_endpoint(query: str):
     return result
 
 
-@app.get("/api/services", tags=["Legacy"])
+<<<<<<< @app.get("/api/services", tags=["Legacy"])
 async def list_all_services():
     """
     **LEGACY ENDPOINT** - Use `/v1/providers` or `/v1/capabilities` instead.
     
+>>>>>>>+HEAD
+@app.get("/api/services", tags=["Services"])
+async def list_all_services():
+    """
+>>>>>>> 9cdb22b... Add PinkSync API - DEAF FIRST Platform Services with FastAPI, frontend components, Docker, and documentation
     List all available PinkSync services.
     
     Returns the complete service catalog organized by category.
@@ -727,11 +787,16 @@ async def list_all_services():
     return pinksync_services.get_all_services()
 
 
-@app.get("/api/services/{category}", tags=["Legacy"])
+<<<<<<< @app.get("/api/services/{category}", tags=["Legacy"])
 async def get_service_category(category: str):
     """
     **LEGACY ENDPOINT** - Use `/v1/capabilities` with filters instead.
     
+>>>>>>>+HEAD
+@app.get("/api/services/{category}", tags=["Services"])
+async def get_service_category(category: str):
+    """
+>>>>>>> 9cdb22b... Add PinkSync API - DEAF FIRST Platform Services with FastAPI, frontend components, Docker, and documentation
     Get services by category.
     
     Available categories:
@@ -759,7 +824,7 @@ async def get_service_category(category: str):
 
 
 # ============================================================================
-# Validation & Compliance Endpoints (v1)
+<<<<<<< # Validation & Compliance Endpoints (v1)
 # Enhanced: Machine-readable compliance results
 # ============================================================================
 
@@ -878,6 +943,17 @@ async def ai_validate(
     """
     **LEGACY ENDPOINT** - Use `/v1/validate/batch` instead.
     
+>>>>>>>+HEAD
+# Validation Endpoints
+# ============================================================================
+
+@app.post("/api/py/ai-validate", response_model=ValidationResponse, tags=["Validation"])
+async def ai_validate(
+    request: Request,
+    x_magician_role: Optional[str] = Header(None, alias="X-Magician-Role")
+):
+    """
+>>>>>>> 9cdb22b... Add PinkSync API - DEAF FIRST Platform Services with FastAPI, frontend components, Docker, and documentation
     AI-triggered batch validation for deaf accessibility.
     
     Validates multiple URLs for deaf-first accessibility compliance
@@ -889,11 +965,24 @@ async def ai_validate(
     if x_magician_role and x_magician_role != "accessibility-auditor":
         logger.warning(f"Unauthorized agent role: {x_magician_role}")
     
+<<<<<<< HEAD
     if not request.urls:
         raise HTTPException(status_code=400, detail="No URLs provided")
     
     results = []
     for url in request.urls:
+    try:
+        payload = await request.json()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Invalid JSON payload")
+    
+    urls = payload.get("urls", [])
+    
+    if not urls:
+        raise HTTPException(status_code=400, detail="No URLs provided")
+    
+    results = []
+    for url in urls:
         result = validate_url(url)
         score = result.get("deaf_score", 0)
         asl_compatible = result.get("asl_compatible", False)
@@ -911,11 +1000,15 @@ async def ai_validate(
     return ValidationResponse(status="success", results=results)
 
 
-@app.post("/api/validate", tags=["Legacy"])
 async def validate_single_url(url: str):
     """
     **LEGACY ENDPOINT** - Use `/v1/validate` instead.
     
+>>>>>>>+HEAD
+@app.post("/api/validate", tags=["Validation"])
+async def validate_single_url(url: str):
+    """
+>>>>>>> 9cdb22b... Add PinkSync API - DEAF FIRST Platform Services with FastAPI, frontend components, Docker, and documentation
     Validate a single URL for deaf accessibility.
     """
     result = validate_url(url)
@@ -923,7 +1016,7 @@ async def validate_single_url(url: str):
 
 
 # ============================================================================
-# Signal Correction & Feedback Endpoints (v1)
+<<<<<<< # Signal Correction & Feedback Endpoints (v1)
 # Reframed: Feedback -> Signal Correction
 # ============================================================================
 
@@ -990,6 +1083,14 @@ async def collect_feedback(service_used: str, feedback: UserExperience):
     """
     **LEGACY ENDPOINT** - Use `/v1/feedback/discrepancy` or `/v1/feedback/mismatch` instead.
     
+>>>>>>>+HEAD
+# Feedback Endpoints
+# ============================================================================
+
+@app.post("/api/feedback", tags=["Feedback"])
+async def collect_feedback(service_used: str, feedback: UserExperience):
+    """
+>>>>>>> 9cdb22b... Add PinkSync API - DEAF FIRST Platform Services with FastAPI, frontend components, Docker, and documentation
     Collect feedback on a service.
     
     Helps improve services and ensures they remain DEAF FIRST.
@@ -1009,6 +1110,7 @@ async def collect_feedback(service_used: str, feedback: UserExperience):
 
 
 # ============================================================================
+<<<<<<< HEAD
 # Accessibility Events Endpoint (v1) - THE HEART OF PINKSYNC
 # ============================================================================
 
@@ -1136,7 +1238,6 @@ async def health_check():
 async def root():
     """Root endpoint with API information."""
     return {
-        "name": "PinkSync API - Accessibility Signal Exchange",
         "version": "1.0.0",
         "description": "Deaf-First Protocol Infrastructure",
         "tagline": "Not a Deaf app. A Deaf-first protocol.",
@@ -1441,13 +1542,17 @@ async def discover_ecosystem_features():
             "integrate": "Follow the README.md in each branch for integration instructions"
         },
         "note": "Feature availability and branches are maintained in the source repository. Check github.com/pinkycollie/pinksync for the most current list of available features, tools, and microservices."
-    }
-
-
-# OpenAPI tags metadata
+>>>>>>>+HEAD
+      "n        "name": "PinkSync API",
+        "version": "1.0.0",
+        "description": "DEAF FIRST Platform Services API",
+        "docs": "/docs",
+        "health": "/health"
+>>>>>>>-9cdb22b
+OpenAPI tags metadata
 tags_metadata = [
     {
-        "name": "Accessibility Context",
+<<<<<<< HE        "name": "Accessibility Context",
         "description": "Initialize accessibility contexts - handshake between app capabilities and user preferences"
     },
     {
@@ -1461,11 +1566,13 @@ tags_metadata = [
         "description": "Discover features, tools, and microservices from github.com/pinkycollie/pinksync source repository"
     },
     {
+>>>>>>>+HEAD
+>>>>> 9cdb22b... Add PinkSync API - DEAF FIRST Platform Services with FastAPI, frontend components, Docker, and documentation
         "name": "Dashboard",
         "description": "Initialize personalized Deaf-First dashboard"
     },
     {
-        "name": "Validation & Compliance",
+<<<<<<< HE        "name": "Validation & Compliance",
         "description": "Machine-readable compliance validation. Results can block deployments, unlock badges, or satisfy regulators."
     },
     {
@@ -1488,7 +1595,416 @@ tags_metadata = [
     {
         "name": "Root",
         "description": "Root endpoints and API information"
-    }
-]
+>>>>>>>+HEAD
+      "n        "name": "Discovery",
+        "description": "Discover services based on user queries"
+    },
+    {
+        "name": "Services",
+        "description": "Browse and access PinkSync services"
+    },
+    {
+        "name": "Validation",
+        "description": "Validate URLs for deaf accessibility"
+    },
+    {
+        "name": "Feedback",
+        "description": "Collect service feedback and improvement suggestions"
+    },
+    {
+        "name": "Health",
+        "description": "Health check endpoints"
+>>>>>>>+9cdb22b
+pp.openapi_tags = tags_metadata
+# Health Check Endpoints
+# ============================================================================
 
-app.openapi_tags = tags_metadata
+@app.get("/health", tags=["Health"])
+async def health_check():
+    """Health check endpoint."""
+    return {"status": "healthy", "service": "PinkSync API"}
+
+
+@app.get("/", tags=["Root"])
+async def root():
+    """Root endpoint with API information."""
+    return {
+<<<<<<< HE        "name": "PinkSync API - Accessibility Signal Exchange",
+        "version": "1.0.0",
+        "description": "Deaf-First Protocol Infrastructure",
+        "tagline": "Not a Deaf app. A Deaf-first protocol.",
+        "api_versions": {
+            "v1": "/v1",
+            "legacy": "/api"
+        },
+        "docs": "/docs",
+        "health": "/health",
+        "core_capabilities": [
+            "Accessibility context initialization",
+            "Capability registry and discovery",
+            "Machine-readable compliance validation",
+            "Real-time accessibility event streaming",
+            "Signal correction and feedback"
+        ]
+        "endpoints": "/api/endpoints"
+    }
+
+
+@app.get("/api/endpoints", tags=["Root"])
+async def list_all_endpoints():
+    """
+    List all available API endpoints.
+    
+    Showcases the PATH - all accessible endpoints organized by category.
+    This is your PROMISE of what PinkSync delivers.
+    """
+    return {
+        "broker_v1": {
+            "description": "Core accessibility event broker - Contract-first API",
+            "endpoints": [
+                {
+                    "path": "/v1/events",
+                    "method": "POST",
+                    "description": "Accept accessibility events from applications",
+                    "status": "available",
+                    "contract": "/specs/event-broker.contract.md"
+                },
+                {
+                    "path": "/v1/capabilities",
+                    "method": "GET",
+                    "description": "List registered application capabilities",
+                    "status": "available",
+                    "contract": "/specs/event-broker.contract.md"
+                },
+                {
+                    "path": "/v1/subscribe",
+                    "method": "POST",
+                    "description": "Subscribe to accessibility events",
+                    "status": "available",
+                    "contract": "/specs/event-broker.contract.md"
+                },
+                {
+                    "path": "/v1/compliance/{app_id}",
+                    "method": "GET",
+                    "description": "Check compliance status for an application",
+                    "status": "available",
+                    "contract": "/specs/event-broker.contract.md"
+                }
+            ]
+        },
+        "dashboard": {
+            "description": "Personalized DEAF FIRST dashboard services",
+            "endpoints": [
+                {
+                    "path": "/api/initialize-dashboard",
+                    "method": "POST",
+                    "description": "Initialize personalized dashboard",
+                    "status": "available"
+                }
+            ]
+        },
+        "discovery": {
+            "description": "Service discovery and search",
+            "endpoints": [
+                {
+                    "path": "/api/discover",
+                    "method": "GET",
+                    "description": "Discover services based on query",
+                    "status": "available"
+                },
+                {
+                    "path": "/api/services",
+                    "method": "GET",
+                    "description": "List all available services",
+                    "status": "available"
+                },
+                {
+                    "path": "/api/services/{category}",
+                    "method": "GET",
+                    "description": "Get services by category",
+                    "status": "available"
+                }
+            ]
+        },
+        "validation": {
+            "description": "Accessibility validation services",
+            "endpoints": [
+                {
+                    "path": "/api/py/ai-validate",
+                    "method": "POST",
+                    "description": "AI batch validation for deaf accessibility",
+                    "status": "available"
+                },
+                {
+                    "path": "/api/validate",
+                    "method": "POST",
+                    "description": "Validate single URL",
+                    "status": "available"
+                }
+            ]
+        },
+        "feedback": {
+            "description": "Service feedback collection",
+            "endpoints": [
+                {
+                    "path": "/api/feedback",
+                    "method": "POST",
+                    "description": "Collect service feedback",
+                    "status": "available"
+                }
+            ]
+        },
+        "ecosystem": {
+            "description": "PinkSync ecosystem integration",
+            "endpoints": [
+                {
+                    "path": "/api/ecosystem/features",
+                    "method": "GET",
+                    "description": "Discover available features from pinkycollie/pinksync repository",
+                    "status": "available"
+                },
+                {
+                    "path": "/api/ecosystem/source",
+                    "method": "GET",
+                    "description": "Get source repository information",
+                    "status": "available"
+                }
+            ]
+        },
+        "system": {
+            "description": "System health and information",
+            "endpoints": [
+                {
+                    "path": "/",
+                    "method": "GET",
+                    "description": "Root endpoint with API information",
+                    "status": "available"
+                },
+                {
+                    "path": "/health",
+                    "method": "GET",
+                    "description": "Health check endpoint",
+                    "status": "available"
+                },
+                {
+                    "path": "/api/endpoints",
+                    "method": "GET",
+                    "description": "List all available endpoints (this endpoint)",
+                    "status": "available"
+                },
+                {
+                    "path": "/docs",
+                    "method": "GET",
+                    "description": "Interactive API documentation",
+                    "status": "available"
+                },
+                {
+                    "path": "/redoc",
+                    "method": "GET",
+                    "description": "Alternative API documentation",
+                    "status": "available"
+                },
+                {
+                    "path": "/openapi.json",
+                    "method": "GET",
+                    "description": "OpenAPI schema",
+                    "status": "available"
+                }
+            ]
+        },
+        "promise": {
+            "message": "This is our PROMISE - every endpoint listed here is available and working",
+            "contract": "All broker endpoints follow the contract defined in /specs/event-broker.contract.md",
+            "compliance": "All endpoints support deaf-first accessibility principles",
+            "source": "Additional features and microservices available at github.com/pinkycollie/pinksync"
+        },
+        "roadmap": {
+            "planned": [
+                {
+                    "path": "/v1/events/stream",
+                    "method": "GET",
+                    "description": "Real-time event streaming via WebSocket",
+                    "status": "planned",
+                    "eta": "Q1 2026"
+                },
+                {
+                    "path": "/v1/analytics",
+                    "method": "GET",
+                    "description": "Accessibility analytics dashboard",
+                    "status": "planned",
+                    "eta": "Q2 2026"
+                }
+            ]
+        }
+    }
+
+
+@app.get("/api/ecosystem/source", tags=["Ecosystem"])
+async def get_source_repository():
+    """
+    Get source repository information.
+    
+    Returns details about the pinkycollie/pinksync repository where all features,
+    tools, and microservices are developed.
+    """
+    return {
+        "repository": "github.com/pinkycollie/pinksync",
+        "url": "https://github.com/pinkycollie/pinksync",
+        "description": "Source repository containing all PinkSync features, tools, and microservices",
+        "structure": {
+            "features": "Feature branches with specific accessibility capabilities",
+            "tools": "Specialized tools for accessibility testing and validation",
+            "microservices": "Independent microservices extending PinkSync functionality"
+        },
+        "integration": {
+            "contracts": "All features must follow contracts defined in /specs",
+            "broker": "All services emit events to PinkSync broker",
+            "compliance": "All components respect compliance levels"
+        },
+        "documentation": {
+            "ecosystem_guide": "/ECOSYSTEM.md",
+            "specifications": "/specs/README.md",
+            "core_principles": "/Core.md"
+        },
+        "deployment": {
+            "monorepo": "Deploy all features together",
+            "selective": "Deploy specific feature branches",
+            "microservices": "Deploy each service independently"
+        }
+    }
+
+
+@app.get("/api/ecosystem/features", tags=["Ecosystem"])
+async def discover_ecosystem_features():
+    """
+    Discover available features from the PinkSync ecosystem.
+    
+    Lists features, tools, and microservices available in the pinkycollie/pinksync
+    repository. These are organized by branches in the source repository.
+    """
+    return {
+        "source_repository": "github.com/pinkycollie/pinksync",
+        "features": {
+            "available": [
+                {
+                    "name": "Sign Language Interpreter",
+                    "branch": "feature/sign-language-interpreter",
+                    "description": "ASL video interpretation service",
+                    "status": "check repository for availability"
+                },
+                {
+                    "name": "Visual Alerts",
+                    "branch": "feature/visual-alerts",
+                    "description": "Convert audio alerts to visual notifications",
+                    "status": "check repository for availability"
+                },
+                {
+                    "name": "Caption Generator",
+                    "branch": "microservice/caption-generator",
+                    "description": "Real-time caption generation microservice",
+                    "status": "check repository for availability"
+                },
+                {
+                    "name": "ASL Video Processor",
+                    "branch": "microservice/asl-video-processor",
+                    "description": "Video processing optimized for sign language",
+                    "status": "check repository for availability"
+                }
+            ]
+        },
+        "tools": {
+            "available": [
+                {
+                    "name": "Accessibility Validator",
+                    "branch": "tool/accessibility-validator",
+                    "description": "Validate applications against PinkSync contracts",
+                    "status": "check repository for availability"
+                },
+                {
+                    "name": "Compliance Checker",
+                    "branch": "tool/compliance-checker",
+                    "description": "Check compliance level of applications",
+                    "status": "check repository for availability"
+                }
+            ]
+        },
+        "how_to_use": {
+            "discover": "Visit https://github.com/pinkycollie/pinksync to see all available branches",
+            "checkout": "git clone -b <branch-name> https://github.com/pinkycollie/pinksync",
+            "integrate": "Follow the README.md in each branch for integration instructions"
+        },
+        "note": "Feature availability and branches are maintained in the source repository. Check github.com/pinkycollie/pinksync for the most current list of available features, tools, and microservices."
+>>>>>>>+HEAD
+      "n        "name": "PinkSync API",
+        "version": "1.0.0",
+        "description": "DEAF FIRST Platform Services API",
+        "docs": "/docs",
+        "health": "/health"
+>>>>>>>-9cdb22b
+OpenAPI tags metadata
+tags_metadata = [
+    {
+<<<<<<< HE        "name": "Accessibility Context",
+        "description": "Initialize accessibility contexts - handshake between app capabilities and user preferences"
+    },
+    {
+        "name": "Capability Registry",
+        "description": "Discover accessibility capabilities and providers. Query which providers support specific features."
+        "name": "Broker v1",
+        "description": "PinkSync Accessibility Event Broker - Core API for accessibility intent brokering. Contract-first, type-safe, async-native. See specs/event-broker.contract.md for full contract."
+    },
+    {
+        "name": "Ecosystem",
+        "description": "Discover features, tools, and microservices from github.com/pinkycollie/pinksync source repository"
+    },
+    {
+>>>>>>>+HEAD
+>>>>> 9cdb22b... Add PinkSync API - DEAF FIRST Platform Services with FastAPI, frontend components, Docker, and documentation
+        "name": "Dashboard",
+        "description": "Initialize personalized Deaf-First dashboard"
+    },
+    {
+<<<<<<< HE        "name": "Validation & Compliance",
+        "description": "Machine-readable compliance validation. Results can block deployments, unlock badges, or satisfy regulators."
+    },
+    {
+        "name": "Accessibility Events",
+        "description": "Real-time event stream. Append-only, structured, auditable. The heart of PinkSync."
+    },
+    {
+        "name": "Signal Correction",
+        "description": "Report discrepancies, false positives, and mismatches. Signal correction, not opinions."
+    },
+    {
+        "name": "Legacy",
+        "description": "Legacy endpoints for backward compatibility. Use versioned /v1 endpoints instead."
+    },
+    {
+        "name": "Health",
+        "description": "Health check and status endpoints"
+        "description": "Health check endpoints"
+    },
+    {
+        "name": "Root",
+        "description": "Root endpoints and API information"
+>>>>>>>+HEAD
+      "n        "name": "Discovery",
+        "description": "Discover services based on user queries"
+    },
+    {
+        "name": "Services",
+        "description": "Browse and access PinkSync services"
+    },
+    {
+        "name": "Validation",
+        "description": "Validate URLs for deaf accessibility"
+    },
+    {
+        "name": "Feedback",
+        "description": "Collect service feedback and improvement suggestions"
+    },
+    {
+        "name": "Health",
+        "description": "Health check endpoints"
+>>>>>>>+9cdb22b
+pp.openapi_tags = tags_metadata

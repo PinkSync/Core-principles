@@ -21,6 +21,20 @@ Think: **Stripe, but for accessibility signals. Twilio, but for Deaf-first inter
 - Does NOT generate video or visual content
 - Does NOT decide morality or make subjective judgments
 - Does NOT own or control the source applications
+# PinkSync API - DEAF FIRST Platform Services
+
+> Building what WE understand, not fitting into THEIR system.
+
+PinkSync API is a comprehensive middleware and API broker for deaf accessibility services. It serves as the backbone for the DEAF FIRST Platform, providing seamless integration with accessibility partners and services.
+
+## 🎯 Core Philosophy
+
+- **Text-based primary**: Text is the primary interface
+- **Visual indicators**: Visual feedback for everything  
+- **No audio requirements**: Never requires hearing
+- **Cultural competency**: Understands deaf culture
+- **Accessibility first**: Built for accessibility, not retrofitted
+>>>>>>> 9cdb22b... Add PinkSync API - DEAF FIRST Platform Services with FastAPI, frontend components, Docker, and documentation
 
 ## 🚀 Quick Start
 
@@ -53,6 +67,7 @@ uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
 - **ReDoc**: http://localhost:8000/redoc
 - **Health Check**: http://localhost:8000/health
 
+<<<<<<< HEAD
 ## 📚 API Endpoints (v1)
 
 ### 🔥 PinkSync Broker API (v1)
@@ -68,12 +83,15 @@ The core accessibility event brokering API. **Contract-first, type-safe, async-n
 
 **Contract Reference:** See [`/specs/event-broker.contract.md`](/specs/event-broker.contract.md)  
 **Schema Reference:** See [`/specs/accessibility-intent.schema.json`](/specs/accessibility-intent.schema.json)
+I Endpoints
+>>>>>>> 9cdb22b... Add PinkSync API - DEAF FIRST Platform Services with FastAPI, frontend components, Docker, and documentation
 
 ### Dashboard
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/v1/context/initialize` | POST | Initialize accessibility context (handshake) |
+<<<<<<< HEAD
+| `/v| `/v1/context/initialize` | POST | Initialize accessibility context (handshake) |
 
 ### Capability Registry
 
@@ -108,6 +126,30 @@ The core accessibility event brokering API. **Contract-first, type-safe, async-n
 ### Legacy Endpoints
 
 Legacy endpoints under `/api/` are maintained for backward compatibility but are deprecated. Use `/v1/` endpoints for new integrations.
+>>>>>>>+HEAD
+itialize-dashboard` | POST | Initialize personalized DEAF FIRST dashboard |
+
+### Service Discovery
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/discover` | GET | Discover services based on query |
+| `/api/services` | GET | List all available services |
+| `/api/services/{category}` | GET | Get services by category |
+
+### Validation
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/py/ai-validate` | POST | AI batch validation for deaf accessibility |
+| `/api/validate` | POST | Validate single URL |
+
+### Feedback
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/feedback` | POST | Collect service feedback |
+>>>>>>> 9cdb22b... Add PinkSync API - DEAF FIRST Platform Services with FastAPI, frontend components, Docker, and documentation
 
 ## 🛠️ Service Categories
 
@@ -153,7 +195,8 @@ Legacy endpoints under `/api/` are maintained for backward compatibility but are
 
 ## 🔌 Integration Examples
 
-### Broker API - Submit Accessibility Event
+<<<<<<< HEAD
+### Broker ### Broker API - Submit Accessibility Event
 
 ```python
 import httpx
@@ -222,12 +265,15 @@ result = response.json()
 print(f"Subscription ID: {result['subscription_id']}")
 ```
 
+>>>>>>>+HEAD
+.. Add PinkSync API - DEAF FIRST Platform Services with FastAPI, frontend components, Docker, and documentation
 ### Initialize Dashboard
 
 ```python
 import httpx
 
-context_request = {
+<<<<<<< HEAD
+context_reqcontext_request = {
     "user_preferences": {
         "requires_sign_language": True,
         "requires_captions": True,
@@ -258,12 +304,33 @@ print(f"Compatibility Score: {context['compatibility_score']}")
 ```
 
 ### Query Capabilities
+>>>>>>>+HEAD
+
+    "name": "Maria",
+    "needs_financial_help": True,
+    "is_business_owner": True,
+    "needs_healthcare_help": True,
+    "location": "Fort Worth, TX",
+    "financial_goals": ["Buy house", "Start business"],
+    "preferred_communication": "text-heavy"
+}
+
+response = httpx.post(
+    "http://localhost:8000/api/initialize-dashboard",
+    json=user_profile
+)
+dashboard = response.json()
+```
+
+### Discover Services
+>>>>>>> 9cdb22b... Add PinkSync API - DEAF FIRST Platform Services with FastAPI, frontend components, Docker, and documentation
 
 ```python
 import httpx
 
 response = httpx.get(
-    "http://localhost:8000/v1/capabilities",
+<<<<<<< HEAD
+    "http:/    "http://localhost:8000/v1/capabilities",
     params={"capability_type": "visual"}
 )
 capabilities = response.json()
@@ -344,6 +411,21 @@ response = httpx.post(
 # Use /v1/validate instead
 curl -X POST http://localhost:8000/v1/validate \
   -d "target_url=https://example.com&spec_version=1.0.0"
+>>>>>>>+HEAD
+lhost:8000/api/discover",
+    params={"query": "tax help"}
+)
+services = response.json()
+```
+
+### AI Batch Validation
+
+```bash
+curl -X POST http://localhost:8000/api/py/ai-validate \
+  -H "Content-Type: application/json" \
+  -H "X-Magician-Role: accessibility-auditor" \
+  -d '{"urls": ["https://example.com", "https://deaf-friendly-site.com"]}'
+>>>>>>> 9cdb22b... Add PinkSync API - DEAF FIRST Platform Services with FastAPI, frontend components, Docker, and documentation
 ```
 
 ## 🎨 Frontend Components
@@ -384,7 +466,8 @@ import { ServiceDiscovery } from './components/ServiceDiscovery';
 ## 🏗️ Architecture
 
 ```
-PinkSync API - Accessibility Signal Exchange
+<<<<<<< HEAD
+PinkSync API - AcPinkSync API - Accessibility Signal Exchange
 ├── api/
 │   ├── main.py              # FastAPI application with v1 endpoints
 │   ├── schemas/             # Pydantic schemas (new)
@@ -415,6 +498,12 @@ PinkSync API
 │   │   └── __init__.py             # Accessibility validators
 │   └── integrations/
 │       └── fibonrose.py            # External integrations
+>>>>>>>+HEAD
+s/
+│   │   └── __init__.py      # Accessibility validators
+│   └── integrations/
+│       └── fibonrose.py     # External integrations
+>>>>>>> 9cdb22b... Add PinkSync API - DEAF FIRST Platform Services with FastAPI, frontend components, Docker, and documentation
 ├── frontend/
 │   └── components/
 │       ├── AITriggerPanel.tsx
@@ -425,7 +514,22 @@ PinkSync API
 └── requirements.txt
 ```
 
+<<<<<<< HEAD
 ## 🔗 PinkSync as Infrastructure
+
+PinkSync operates as an **accessibility signal exchange**:
+
+1. **Not a platform** - It's a protocol layer
+2. **Not a service** - It's infrastructure that services integrate with
+3. **Not optional** - When compliance matters, PinkSync becomes unavoidable
+
+### Key Principle
+
+The moment PinkSync can say:
+
+> "This app declared X, emitted Y, failed Z"
+
+...it stops being optional. This ## 🔗 PinkSync as Infrastructure
 
 PinkSync operates as an **accessibility signal exchange**:
 
@@ -499,10 +603,13 @@ Every interaction is defined by a contract:
 | No audit trail | Cryptographically signed logs |
 | Built for hearing, adapted | Built for deaf, by design |
 
+>>>>>>>+HEAD
+astAPI, frontend components, Docker, and documentation
 ## 🤝 Contributing
 
 See [Core.md](Core.md) for core principles and contribution guidelines.
 
+<<<<<<< HEAD
 PinkSync is building a **Deaf-first protocol**, not a Deaf app. Contributions should align with this infrastructure-first approach.
 For specification changes, see [/specs/README.md](/specs/README.md).
 
